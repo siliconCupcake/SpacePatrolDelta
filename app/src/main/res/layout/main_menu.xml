@@ -1,0 +1,85 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:id="@+id/parent"
+    android:layout_height="match_parent"
+    tools:context="com.curve.nandhakishore.deltagame.SplashScreen">
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/menu_bg"
+        android:src="@drawable/splash_background"
+        android:scaleType="fitXY"
+        android:layout_gravity="center"/>
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/menu_title"
+            android:layout_marginTop="15dp"
+            android:src="@drawable/space_patrol_delta"
+            android:scaleY="0.8"
+            android:scaleX="0.8"
+            android:layout_gravity="center_horizontal"/>
+
+
+        <ImageButton
+            android:layout_width="190dp"
+            android:layout_height="49dp"
+            android:id="@+id/start_button"
+            android:scaleType="center"
+            android:layout_below="@+id/menu_title"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="40dp"
+            android:src="@drawable/start_button"/>
+
+        <ImageButton
+            android:layout_width="190dp"
+            android:layout_height="49dp"
+            android:id="@+id/scores_button"
+            android:layout_below="@+id/start_button"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="25dp"
+            android:src="@drawable/scores_button"
+            android:scaleType="center"/>
+
+        <ImageButton
+            android:layout_width="190dp"
+            android:layout_height="49dp"
+            android:scaleType="center"
+            android:id="@+id/quit_button"
+            android:layout_below="@+id/scores_button"
+            android:layout_centerHorizontal="true"
+            android:layout_marginTop="25dp"
+            android:src="@drawable/exit_button"/>
+
+    </RelativeLayout>
+    
+    <ImageButton
+        android:layout_width="49dp"
+        android:layout_height="49dp"
+        android:layout_gravity="bottom|end"
+        android:id="@+id/sound_button"
+        android:src="@drawable/volume_button"
+        android:layout_marginBottom="15dp"
+        android:layout_marginEnd="15dp"
+        android:scaleType="center"/>
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/signature"
+        android:scaleX="1"
+        android:scaleY="1"
+        android:layout_marginBottom="5dp"
+        android:src="@drawable/sign"
+        android:layout_gravity="center_horizontal|bottom"/>
+
+</FrameLayout>
