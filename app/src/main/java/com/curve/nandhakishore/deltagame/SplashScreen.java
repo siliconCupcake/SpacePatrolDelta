@@ -4,6 +4,9 @@ import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Point;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
@@ -14,7 +17,7 @@ import android.widget.ImageView;
 
 public class SplashScreen extends AppCompatActivity {
 
-    ImageView title, tap;
+    ImageView title, tap, bg;
     FrameLayout fl;
     dbScores scoreDB = new dbScores(this);
 
@@ -27,10 +30,16 @@ public class SplashScreen extends AppCompatActivity {
         fl = (FrameLayout) findViewById(R.id.parent);
         title = (ImageView) findViewById(R.id.splash_title);
         tap = (ImageView) findViewById(R.id.splash_sub);
+        bg = (ImageView) findViewById(R.id.splash_bg);
         audioUtils.init(this);
 
+        Bitmap bmp = BitmapFactory.decodeResource(this.getResources(), R.drawable.splash_background);
+        Point screen = new Point();
+        getWindowManager().getDefaultDisplay().getSize(screen);
+        bg.setImageBitmap(Bitmap.createScaledBitmap(bmp, screen.x, screen.y, false));
+
         SharedPreferences prefs = getSharedPreferences("Preferences", MODE_PRIVATE);
-        audioUtils.volume = prefs.getInt("Volume", 1);
+        audioUtils.bgm_volume = prefs.getInt("Volume", 1);
         audioUtils.setBgmVolume();
 
         scoreDB.open();

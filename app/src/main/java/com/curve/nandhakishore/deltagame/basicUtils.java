@@ -1,5 +1,7 @@
 package com.curve.nandhakishore.deltagame;
 
+import android.os.Handler;
+
 import java.util.ArrayList;
 
 /**
@@ -8,6 +10,8 @@ import java.util.ArrayList;
 
 public class basicUtils {
     public static ArrayList<scoreItem> scores;
+
+    public static Handler handler;
 
     public static void sortScores(){
 

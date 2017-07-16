@@ -1,0 +1,65 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_centerInParent="true"
+    android:id="@+id/faded_bg"
+    android:background="@android:color/transparent">
+
+    <com.curve.nandhakishore.deltagame.customTextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:id="@+id/your_score"
+        android:text="45"
+        android:textSize="100sp"
+        android:textColor="#EFEFEF"
+        app:customFont="arcadepix_plus.ttf"/>
+
+    <com.curve.nandhakishore.deltagame.customTextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_centerHorizontal="true"
+        android:layout_marginTop="15dp"
+        android:layout_below="@+id/your_score"
+        android:id="@+id/high_score"
+        android:text="HIGH SCORE : 45"
+        android:textSize="45sp"
+        android:textColor="#EFEFEF"
+        app:customFont="arcadepix_plus.ttf"/>
+
+    <ImageButton
+        android:layout_width="49dp"
+        android:layout_height="49dp"
+        android:id="@+id/home_button"
+        android:layout_below="@+id/high_score"
+        android:layout_marginTop="25dp"
+        android:layout_toStartOf="@+id/retry_button"
+        android:src="@drawable/reset_button"
+        android:layout_marginEnd="30dp"
+        android:scaleType="center"/>
+
+    <ImageButton
+        android:layout_width="49dp"
+        android:layout_height="49dp"
+        android:id="@+id/retry_button"
+        android:layout_below="@+id/high_score"
+        android:layout_marginTop="25dp"
+        android:layout_centerHorizontal="true"
+        android:src="@drawable/reset_button"
+        android:scaleType="center"/>
+
+    <ImageButton
+        android:layout_width="49dp"
+        android:layout_height="49dp"
+        android:scaleType="center"
+        android:layout_below="@+id/high_score"
+        android:layout_marginTop="25dp"
+        android:id="@+id/share_button"
+        android:layout_toEndOf="@+id/retry_button"
+        android:layout_marginStart="30dp"
+        android:src="@drawable/reset_button"/>
+
+</RelativeLayout>

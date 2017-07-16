@@ -4,9 +4,11 @@ import android.app.Dialog;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Point;
 import android.media.MediaPlayer;
 import android.os.Bundle;
-import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.view.animation.AnimationUtils;
@@ -16,13 +18,13 @@ import android.widget.ImageView;
 public class MainMenu extends AppCompatActivity {
 
     ImageView title, sign;
+    ImageView bg;
     ImageButton start, scores, exit, sound;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.main_menu);
-
 
         uiInit();
         audioUtils.bgm.start();
@@ -31,13 +33,13 @@ public class MainMenu extends AppCompatActivity {
         sound.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(audioUtils.volume == 1){
-                    audioUtils.volume = 0;
+                if(audioUtils.bgm_volume == 1){
+                    audioUtils.bgm_volume = 0;
                     audioUtils.setBgmVolume();
                     sound.setImageResource(R.drawable.mute_button);
                 }
-                else if(audioUtils.volume == 0){
-                    audioUtils.volume = 1;
+                else if(audioUtils.bgm_volume == 0){
+                    audioUtils.bgm_volume = 1;
                     audioUtils.setBgmVolume();
                     sound.setImageResource(R.drawable.volume_button);
                 }
@@ -78,15 +80,20 @@ public class MainMenu extends AppCompatActivity {
 
     private void uiInit() {
         title = (ImageView) findViewById(R.id.menu_title);
+        bg = (ImageView) findViewById(R.id.menu_bg);
         start = (ImageButton) findViewById(R.id.start_button);
         scores = (ImageButton) findViewById(R.id.scores_button);
         sound = (ImageButton) findViewById(R.id.sound_button);
         exit = (ImageButton) findViewById(R.id.quit_button);
         sign = (ImageView) findViewById(R.id.signature);
-        if(audioUtils.volume == 1){
+        Bitmap bmp = BitmapFactory.decodeResource(this.getResources(), R.drawable.splash_background);
+        Point screen = new Point();
+        getWindowManager().getDefaultDisplay().getSize(screen);
+        bg.setImageBitmap(Bitmap.createScaledBitmap(bmp, screen.x, screen.y, false));
+        if(audioUtils.bgm_volume == 1){
             sound.setImageResource(R.drawable.volume_button);
         }
-        else if(audioUtils.volume == 0){
+        else if(audioUtils.bgm_volume == 0){
             sound.setImageResource(R.drawable.mute_button);
         }
     }
@@ -150,7 +157,7 @@ public class MainMenu extends AppCompatActivity {
             audioUtils.bgm.pause();
         SharedPreferences sPrefs = getSharedPreferences("Preferences", MODE_PRIVATE);
         SharedPreferences.Editor editor = sPrefs.edit();
-        editor.putInt("Volume", audioUtils.volume);
+        editor.putInt("Volume", audioUtils.bgm_volume);
         editor.apply();
         super.onPause();
     }

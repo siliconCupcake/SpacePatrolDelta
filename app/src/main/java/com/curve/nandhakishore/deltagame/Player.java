@@ -3,55 +3,90 @@ package com.curve.nandhakishore.deltagame;
 import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.graphics.Rect;
 import android.util.Log;
-
-/**
- * Created by Nandha Kishore on 22-06-2017.
- */
 
 public class Player {
 
     private boolean first = true;
     private Bitmap ship;
-    private int x, y, shipHeight, shipWidth, minY, maxY, laneHeight, currLane, now, speed;
+    private Bitmap ship_up;
+    private Bitmap ship_down;
+    private Bitmap bmp;
+    private int x;
+    private int y;
+    private int shipHeight;
+    private int shipWidth;
+    private int minY;
+    private int maxY;
+    private int laneHeight;
+    private int currLane;
+    private int now;
+    private int speed;
+    private int state;
+    private int padding;
+    private long score;
+    private Rect collision;
 
     public Player(Context context, int sx, int sy){
-        x = 40;
+        x = sx/48;
         ship = BitmapFactory.decodeResource(context.getResources(), R.drawable.player_straight);
-        shipHeight = ship.getHeight();
-        shipWidth = ship.getWidth();
-        currLane = 0;
-        maxY = sy - shipHeight - 30;
-        minY = 30;
-        speed = sy/36;
+        ship_up = BitmapFactory.decodeResource(context.getResources(), R.drawable.player_up);
+        ship_down = BitmapFactory.decodeResource(context.getResources(), R.drawable.player_down);
+        score = 0;
         laneHeight = sy/3;
-        y = laneHeight + 30;
+        padding = laneHeight/12;
+        shipHeight = laneHeight - (padding * 2);
+        shipWidth = shipHeight * 6/5;
+        Log.e("Lane", "Height = " + String.valueOf(laneHeight));
+        Log.e("Ship", "Width = " + String.valueOf(shipWidth) + ", Height = " + String.valueOf(shipHeight));
+        scaleBitmaps();
+        bmp = ship;
+        currLane = 0;
+        maxY = sy - shipHeight - padding;
+        minY = padding;
+        speed = sy/30;
+        state = 0;
+        y = laneHeight + padding;
+        collision = new Rect(x, y, x + shipWidth, y + shipHeight);
     }
 
-    public void update(int toLane){
+    private void scaleBitmaps(){
+        ship = Bitmap.createScaledBitmap(ship, shipWidth, shipHeight, false);
+        ship_up = Bitmap.createScaledBitmap(ship_up, shipWidth, shipHeight, false);
+        ship_down = Bitmap.createScaledBitmap(ship_down, shipWidth, shipHeight, false);
+    }
+
+    public long update(int toLane){
         if(first){
             now = y;
             first = false;
         }
 
-        if(currLane == toLane){
-            currLane = toLane;
-            first = true;
-        }
-        else if(currLane - toLane > 0){
-            if(now - y < laneHeight)
-                y-=speed;
-            else{
-                currLane = toLane;
-                first = true;
-            }
-        }
-        else if(currLane - toLane < 0){
-            if(y - now < laneHeight)
-                y+=speed;
-            else{
-                currLane = toLane;
-                first = true;
+        if(currLane != toLane) {
+            state = 1;
+            if (currLane - toLane > 0) {
+                if (now - y < laneHeight) {
+                    bmp = ship_up;
+                    y -= speed;
+                }
+                else {
+                    currLane = toLane;
+                    first = true;
+                    bmp = ship;
+                    state = 0;
+                }
+            } else if (currLane - toLane < 0) {
+                if (y - now < laneHeight) {
+                    bmp = ship_down;
+                    y += speed;
+                }
+                else {
+                    currLane = toLane;
+                    first = true;
+                    bmp = ship;
+                    state = 0;
+                }
             }
         }
 
@@ -59,10 +94,25 @@ public class Player {
             y = maxY;
         if (y < minY)
             y = minY;
+
+        collision.left = x;
+        collision.right = x + shipWidth;
+        collision.top = y;
+        collision.bottom = y + shipHeight;
+
+        return score;
     }
 
     public Bitmap getShip() {
-        return ship;
+        return bmp;
+    }
+
+    public Rect getCollision() {
+        return collision;
+    }
+
+    public void incScore() {
+        score++;
     }
 
     public int getX() {
@@ -75,5 +125,17 @@ public class Player {
 
     public int getLane() {
         return currLane;
+    }
+
+    public int getState() {
+        return state;
+    }
+
+    public void setScore(long score) {
+        this.score = score;
+    }
+
+    public long getScore() {
+        return score;
     }
 }

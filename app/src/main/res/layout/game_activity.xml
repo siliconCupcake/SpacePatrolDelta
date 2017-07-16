@@ -1,6 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent" android:layout_height="match_parent">
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
 
     <LinearLayout
         android:layout_width="match_parent"
@@ -10,14 +12,80 @@
 
     </LinearLayout>
 
+    <RelativeLayout
+        android:layout_width="200dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="top|end"
+        android:layout_marginEnd="15dp"
+        android:layout_marginTop="15dp">
+
     <ImageButton
         android:layout_width="49dp"
         android:layout_height="49dp"
-        android:layout_gravity="top|end"
         android:id="@+id/pause_button"
         android:src="@drawable/pause_button"
-        android:layout_marginTop="15dp"
+        android:layout_alignParentEnd="true"
+        android:scaleType="center" />
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/score_coin"
+            android:scaleType="center"
+            android:layout_toStartOf="@id/pause_button"
+            android:layout_centerVertical="true"
+            android:layout_marginEnd="15dp"
+            android:scaleX="1.5"
+            android:scaleY="1.5"
+            android:src="@drawable/score_coin" />
+
+        <com.curve.nandhakishore.deltagame.customTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/score"
+            android:layout_toStartOf="@+id/score_coin"
+            android:layout_marginEnd="6dp"
+            app:customFont="arcadepix_plus.ttf"
+            android:layout_centerVertical="true"
+            android:textSize="45sp"
+            android:textColor="@android:color/white"
+            android:text="058" />
+
+    </RelativeLayout>
+
+    <RelativeLayout
+        android:layout_width="100dp"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|end"
         android:layout_marginEnd="15dp"
-        android:scaleType="center"/>
+        android:layout_marginBottom="15dp">
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/life_1"
+            android:scaleType="center"
+            android:layout_alignParentEnd="true"
+            android:src="@drawable/life" />
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/life_2"
+            android:scaleType="center"
+            android:layout_marginEnd="6dp"
+            android:layout_toStartOf="@+id/life_1"
+            android:src="@drawable/life" />
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/life_3"
+            android:layout_marginEnd="6dp"
+            android:scaleType="center"
+            android:layout_toStartOf="@+id/life_2"
+            android:src="@drawable/life" />
+
+    </RelativeLayout>
 
 </FrameLayout>
