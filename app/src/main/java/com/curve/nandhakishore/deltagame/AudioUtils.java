@@ -4,7 +4,7 @@ import android.content.Context;
 import android.media.MediaPlayer;
 
 
-public class audioUtils {
+public class AudioUtils {
 
     static MediaPlayer bgm = new MediaPlayer();
     static MediaPlayer coin = new MediaPlayer();

@@ -5,6 +5,7 @@ import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
+import android.util.Log;
 
 import java.util.ArrayList;
 
@@ -14,13 +15,14 @@ public class dbScores {
     private static final int DB_VERSION = 1;
     private static final String TABLE_NAME = "HIGH_SCORES";
     private static final String C_ID = "ID";
-    private static final String C_RANK = "RANK";
     private static final String C_SCORE = "SCORE";
     private static final String C_NAME = "NAME";
-    private String[] allColumns = {C_ID, C_RANK, C_NAME, C_SCORE};
+    private String[] allColumns = {C_ID, C_NAME, C_SCORE};
 
-    private static final String CREATE_DB = "CREATE TABLE " + TABLE_NAME + "( " + C_ID + " INTEGER PRIMARY KEY, "
-            + C_RANK + " INTEGER, " + C_NAME + " TEXT, " + C_SCORE + " TEXT);";
+    private static final String CREATE_DB = "CREATE TABLE " + TABLE_NAME + "( " + C_ID + " INTEGER PRIMARY KEY AUTO_INCREMENT, "
+            + C_NAME + " TEXT, " + C_SCORE + " INTEGER);";
+
+    private static final String QUERY_SELECT = "SELECT * FROM " + TABLE_NAME + " ORDER BY " + C_SCORE + " DESC" ;
 
     private dbHelper myHelper;
     private final Context myContext;
@@ -58,22 +60,20 @@ public class dbScores {
         myHelper.close();
     }
 
-    public long createEntry (scoreItem c) {
+    public long createEntry (ScoreItem c) {
+        Log.e("DB values", "Name - " + c.name + "Score - " + String.valueOf(c.score));
         ContentValues cv = new ContentValues();
-        cv.put(C_ID, c.sno);
-        cv.put(C_RANK, c.rank);
         cv.put(C_NAME, c.name);
-        cv.put(C_SCORE, String.valueOf(c.score));
+        cv.put(C_SCORE, c.score);
         return myDatabase.insert(TABLE_NAME, null, cv);
     }
 
 
-    public ArrayList<scoreItem> getData() {
-        ArrayList<scoreItem> list = new ArrayList<>();
-        Cursor c = myDatabase.query(TABLE_NAME, allColumns, null, null, null, null, null);
+    public ArrayList<ScoreItem> getData() {
+        ArrayList<ScoreItem> list = new ArrayList<>();
+        Cursor c = myDatabase.rawQuery(QUERY_SELECT, null);
         for(c.moveToFirst(); !c.isAfterLast(); c.moveToNext()) {
-            scoreItem row = new scoreItem(c.getInt(0), c.getString(2), c.getLong(3));
-            row.setRank(c.getInt(1));
+            ScoreItem row = new ScoreItem(c.getInt(0), c.getString(1), c.getInt(2));
             list.add(row);
         }
         c.close();

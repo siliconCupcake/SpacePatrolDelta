@@ -10,6 +10,7 @@ import android.graphics.Point;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.view.animation.AnimationUtils;
 import android.widget.ImageButton;
@@ -19,6 +20,7 @@ public class MainMenu extends AppCompatActivity {
 
     ImageView title, sign;
     ImageView bg;
+    dbScores scoreDB = new dbScores(this);
     ImageButton start, scores, exit, sound;
 
     @Override
@@ -27,20 +29,26 @@ public class MainMenu extends AppCompatActivity {
         setContentView(R.layout.main_menu);
 
         uiInit();
-        audioUtils.bgm.start();
+        AudioUtils.bgm.start();
         entryAnim();
+        scoreDB.open();
+        BasicUtils.scores = scoreDB.getData();
+        for (int i = 0; i < BasicUtils.scores.size(); i++){
+            Log.e("BasicUtils.scores", BasicUtils.scores.get(i).name
+                    + ", " + String.valueOf(BasicUtils.scores.get(i).score) + " at index " + String.valueOf(i));
+        }
 
         sound.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if(audioUtils.bgm_volume == 1){
-                    audioUtils.bgm_volume = 0;
-                    audioUtils.setBgmVolume();
+                if(AudioUtils.bgm_volume == 1){
+                    AudioUtils.bgm_volume = 0;
+                    AudioUtils.setBgmVolume();
                     sound.setImageResource(R.drawable.mute_button);
                 }
-                else if(audioUtils.bgm_volume == 0){
-                    audioUtils.bgm_volume = 1;
-                    audioUtils.setBgmVolume();
+                else if(AudioUtils.bgm_volume == 0){
+                    AudioUtils.bgm_volume = 1;
+                    AudioUtils.setBgmVolume();
                     sound.setImageResource(R.drawable.volume_button);
                 }
             }
@@ -54,7 +62,7 @@ public class MainMenu extends AppCompatActivity {
                 startGame.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
                 startActivity(startGame);
                 overridePendingTransition(R.anim.activity_fadein, R.anim.activity_fadeout);
-                stopAndPrepare(audioUtils.bgm);
+                stopAndPrepare(AudioUtils.bgm);
             }
         });
 
@@ -66,7 +74,7 @@ public class MainMenu extends AppCompatActivity {
                 viewScores.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
                 startActivity(viewScores);
                 overridePendingTransition(R.anim.activity_fadein, R.anim.activity_fadeout);
-                stopAndPrepare(audioUtils.bgm);
+                stopAndPrepare(AudioUtils.bgm);
             }
         });
 
@@ -90,10 +98,10 @@ public class MainMenu extends AppCompatActivity {
         Point screen = new Point();
         getWindowManager().getDefaultDisplay().getSize(screen);
         bg.setImageBitmap(Bitmap.createScaledBitmap(bmp, screen.x, screen.y, false));
-        if(audioUtils.bgm_volume == 1){
+        if(AudioUtils.bgm_volume == 1){
             sound.setImageResource(R.drawable.volume_button);
         }
-        else if(audioUtils.bgm_volume == 0){
+        else if(AudioUtils.bgm_volume == 0){
             sound.setImageResource(R.drawable.mute_button);
         }
     }
@@ -108,7 +116,7 @@ public class MainMenu extends AppCompatActivity {
     }
 
     private void confirmExit(){
-        audioUtils.bgm.pause();
+        AudioUtils.bgm.pause();
         final Dialog dialog = new Dialog(this, R.style.dialog);
         dialog.setContentView(R.layout.confirm_exit);
         ImageButton yesButton = (ImageButton) dialog.findViewById(R.id.yes_button);
@@ -116,14 +124,15 @@ public class MainMenu extends AppCompatActivity {
         yesButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                audioUtils.bgm.stop();
+                AudioUtils.bgm.stop();
+                dialog.dismiss();
                 finishAffinity();
             }
         });
         noButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                audioUtils.bgm.start();
+                AudioUtils.bgm.start();
                 dialog.cancel();
             }
         });
@@ -131,7 +140,7 @@ public class MainMenu extends AppCompatActivity {
         dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
             @Override
             public void onDismiss(DialogInterface dialogInterface) {
-                audioUtils.bgm.start();
+                AudioUtils.bgm.start();
             }
         });
     }
@@ -153,19 +162,39 @@ public class MainMenu extends AppCompatActivity {
 
     @Override
     protected void onPause() {
-        if(audioUtils.bgm.isPlaying())
-            audioUtils.bgm.pause();
+        if(AudioUtils.bgm.isPlaying())
+            AudioUtils.bgm.pause();
         SharedPreferences sPrefs = getSharedPreferences("Preferences", MODE_PRIVATE);
         SharedPreferences.Editor editor = sPrefs.edit();
-        editor.putInt("Volume", audioUtils.bgm_volume);
+        editor.putInt("Volume", AudioUtils.bgm_volume);
         editor.apply();
         super.onPause();
     }
 
     @Override
     protected void onResume() {
-        audioUtils.bgm.start();
+        AudioUtils.bgm.start();
         entryAnim();
         super.onResume();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        scoreDB.removeRows();
+        for(int n = 0; n < 3; n++) {
+            try{
+                scoreDB.createEntry(BasicUtils.scores.get(n));
+                Log.e("Entry values", "Name - " + BasicUtils.scores.get(n).name + "Score - " + String.valueOf(BasicUtils.scores.get(n).score));
+            }catch (Exception e){
+                Log.d("DB", "No item at position " + String.valueOf(n));
+            }
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        scoreDB.close();
+        super.onDestroy();
     }
 }

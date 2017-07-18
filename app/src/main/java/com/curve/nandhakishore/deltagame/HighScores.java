@@ -10,15 +10,14 @@ import android.widget.ImageView;
 import android.widget.LinearLayout;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 
 public class HighScores extends AppCompatActivity {
 
     ImageButton reset, back;
     ImageView title;
     dbScores hScores = new dbScores(this);
-    ArrayList<customTextView> players = new ArrayList<>();
-    ArrayList<customTextView> scores = new ArrayList<>();
+    ArrayList<CustomTextView> players = new ArrayList<>();
+    ArrayList<CustomTextView> scores = new ArrayList<>();
     ArrayList<LinearLayout> lv = new ArrayList<>();
     int n = 0;
 
@@ -27,23 +26,17 @@ public class HighScores extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.high_scores);
 
+        for (int i = 0; i < BasicUtils.scores.size(); i++){
+            Log.e("BasicUtils.scores", BasicUtils.scores.get(i).name
+                    + ", " + String.valueOf(BasicUtils.scores.get(i).score) + " at index " + String.valueOf(i));
+        }
+
         tvInit();
+        hScores.open();
         reset = (ImageButton) findViewById(R.id.reset_button);
         back = (ImageButton) findViewById(R.id.back_button);
         title = (ImageView) findViewById(R.id.scores_title);
         entryAnim();
-
-        hScores.open();
-        hScores.removeRows();
-        basicUtils.sortScores();
-        for(n = 0; n < 3; n++) {
-            try{
-                hScores.createEntry(basicUtils.scores.get(n));
-            }catch (Exception e){
-                Log.d("DB", "No item at position " + String.valueOf(n));
-            }
-        }
-        tvInit();
 
         back.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -56,7 +49,7 @@ public class HighScores extends AppCompatActivity {
             @Override
             public void onClick(View view) {
                 hScores.removeRows();
-                basicUtils.scores.clear();
+                BasicUtils.scores.clear();
 
                 for(n = 0; n < 3; n++){
                     players.get(n).setText("NA");
@@ -71,18 +64,19 @@ public class HighScores extends AppCompatActivity {
         lv.add((LinearLayout) findViewById(R.id.rank_2));
         lv.add((LinearLayout) findViewById(R.id.rank_3));
 
-        players.add((customTextView) findViewById(R.id.player_1));
-        players.add((customTextView) findViewById(R.id.player_2));
-        players.add((customTextView) findViewById(R.id.player_3));
+        players.add((CustomTextView) findViewById(R.id.player_1));
+        players.add((CustomTextView) findViewById(R.id.player_2));
+        players.add((CustomTextView) findViewById(R.id.player_3));
 
-        scores.add((customTextView) findViewById(R.id.score_1));
-        scores.add((customTextView) findViewById(R.id.score_2));
-        scores.add((customTextView) findViewById(R.id.score_3));
+        scores.add((CustomTextView) findViewById(R.id.score_1));
+        scores.add((CustomTextView) findViewById(R.id.score_2));
+        scores.add((CustomTextView) findViewById(R.id.score_3));
 
         for(n = 0; n < 3; n++) {
             try{
-                players.get(n).setText(basicUtils.scores.get(n).name);
-                scores.get(n).setText(String.valueOf(basicUtils.scores.get(n).score));
+                Log.e("Display Scores", BasicUtils.scores.get(n).name + " ranked " + String.valueOf(n + 1));
+                players.get(n).setText(BasicUtils.scores.get(n).name);
+                scores.get(n).setText(String.format("%02d", BasicUtils.scores.get(n).score));
             }
             catch (IndexOutOfBoundsException e){
                 players.get(n).setText("NA");

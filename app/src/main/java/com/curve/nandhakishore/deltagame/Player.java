@@ -4,7 +4,6 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Rect;
-import android.util.Log;
 
 public class Player {
 
@@ -12,6 +11,7 @@ public class Player {
     private Bitmap ship;
     private Bitmap ship_up;
     private Bitmap ship_down;
+    private Bitmap ship_gone;
     private Bitmap bmp;
     private int x;
     private int y;
@@ -26,6 +26,7 @@ public class Player {
     private int state;
     private int padding;
     private long score;
+    private int lives;
     private Rect collision;
 
     public Player(Context context, int sx, int sy){
@@ -33,13 +34,13 @@ public class Player {
         ship = BitmapFactory.decodeResource(context.getResources(), R.drawable.player_straight);
         ship_up = BitmapFactory.decodeResource(context.getResources(), R.drawable.player_up);
         ship_down = BitmapFactory.decodeResource(context.getResources(), R.drawable.player_down);
+        ship_gone = BitmapFactory.decodeResource(context.getResources(), R.drawable.player_gone);
         score = 0;
+        lives = 3;
         laneHeight = sy/3;
         padding = laneHeight/12;
         shipHeight = laneHeight - (padding * 2);
         shipWidth = shipHeight * 6/5;
-        Log.e("Lane", "Height = " + String.valueOf(laneHeight));
-        Log.e("Ship", "Width = " + String.valueOf(shipWidth) + ", Height = " + String.valueOf(shipHeight));
         scaleBitmaps();
         bmp = ship;
         currLane = 0;
@@ -55,6 +56,7 @@ public class Player {
         ship = Bitmap.createScaledBitmap(ship, shipWidth, shipHeight, false);
         ship_up = Bitmap.createScaledBitmap(ship_up, shipWidth, shipHeight, false);
         ship_down = Bitmap.createScaledBitmap(ship_down, shipWidth, shipHeight, false);
+        ship_gone = Bitmap.createScaledBitmap(ship_gone, laneHeight * 6/5, laneHeight, false);
     }
 
     public long update(int toLane){
@@ -103,6 +105,10 @@ public class Player {
         return score;
     }
 
+    public void shipCrashed(){
+        bmp = ship_gone;
+    }
+
     public Bitmap getShip() {
         return bmp;
     }
@@ -137,5 +143,13 @@ public class Player {
 
     public long getScore() {
         return score;
+    }
+
+    public void decLife() {
+        lives--;
+    }
+
+    public int getLives() {
+        return lives;
     }
 }

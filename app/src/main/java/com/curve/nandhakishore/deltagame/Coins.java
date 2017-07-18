@@ -4,6 +4,7 @@ import android.content.Context;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.Rect;
+import android.os.SystemClock;
 import android.util.Log;
 
 import java.util.Random;
@@ -17,7 +18,7 @@ public class Coins {
     private Bitmap coin;
     private int x;
     private int y;
-    private long slab = 5;
+    private long slab = 5000;
     private int coinHeight;
     private int coinWidth;
     private int maxX;
@@ -27,7 +28,7 @@ public class Coins {
     private int padding;
     private Rect collision;
 
-    public Coins (Context context, int sx, int sy, int coin_lane) {
+    public Coins (Context context, int sx, int sy, int coin_lane, Meteor m) {
 
         coin = BitmapFactory.decodeResource(context.getResources(), R.drawable.coin);
         maxX = sx;
@@ -37,18 +38,19 @@ public class Coins {
         coinWidth = coinHeight;
         currLane = coin_lane;
         coin = Bitmap.createScaledBitmap(coin, coinWidth, coinHeight, false);
-        speed = 5;
+        speed = 10;
         Random generator = new Random();
         y = padding + (currLane * laneHeight);
         x = maxX + generator.nextInt(maxX);
-        Log.e("Coin", "Width = " + String.valueOf(coinWidth) + ", Height = " + String.valueOf(coinHeight));
+        if(m != null && x > m.getX() && x < m.getX() + m.getMeteorWidth())
+            x += m.getMeteorWidth() + generator.nextInt(coinWidth);
         collision = new Rect(x, y, x + coin.getWidth(), y + coin.getHeight());
     }
 
     public void update(long score) {
-        if(speed < maxX/96 && score > slab) {
-            speed +=1;
-            slab += 5;
+        if(speed < maxX/72 && score > slab) {
+            speed += 1;
+            slab += 7500;
         }
         x -= speed;
         if(x < -coinWidth){
@@ -84,5 +86,9 @@ public class Coins {
 
     public int getY() {
         return y;
+    }
+
+    public int getCurrLane() {
+        return currLane;
     }
 }

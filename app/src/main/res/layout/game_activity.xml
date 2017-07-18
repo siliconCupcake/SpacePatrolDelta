@@ -39,7 +39,7 @@
             android:scaleY="1.5"
             android:src="@drawable/score_coin" />
 
-        <com.curve.nandhakishore.deltagame.customTextView
+        <com.curve.nandhakishore.deltagame.CustomTextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:id="@+id/score"

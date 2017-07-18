@@ -7,18 +7,18 @@ import android.support.v7.widget.AppCompatTextView;
 import android.util.AttributeSet;
 import android.util.Log;
 
-public class customTextView extends AppCompatTextView {
+public class CustomTextView extends AppCompatTextView {
 
-    public customTextView(Context context){
+    public CustomTextView(Context context){
         super(context);
     }
 
-    public customTextView(Context context, AttributeSet attrs) {
+    public CustomTextView(Context context, AttributeSet attrs) {
         super(context, attrs);
         setCustomFont(context, attrs);
     }
 
-    public customTextView(Context context, AttributeSet attrs, int defStyle) {
+    public CustomTextView(Context context, AttributeSet attrs, int defStyle) {
         super(context, attrs, defStyle);
         setCustomFont(context, attrs);
     }

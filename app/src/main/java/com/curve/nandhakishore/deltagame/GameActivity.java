@@ -2,19 +2,19 @@ package com.curve.nandhakishore.deltagame;
 
 import android.app.Dialog;
 import android.graphics.Point;
-import android.hardware.Sensor;
-import android.hardware.SensorEventListener;
-import android.hardware.SensorManager;
 import android.os.Handler;
 import android.os.Message;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.Display;
 import android.view.GestureDetector;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.animation.Animation;
 import android.view.animation.AnimationUtils;
+import android.widget.BaseAdapter;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
@@ -27,11 +27,10 @@ public class GameActivity extends AppCompatActivity {
     int life = 2;
     ArrayList<ImageView> lives;
     ImageButton pause;
-    float density;
     GameView gameView;
     Point size = new Point();
     LinearLayout lv;
-    customTextView score;
+    CustomTextView score;
     private int SWIPE_MIN_DISTANCE;
 
     @Override
@@ -42,15 +41,12 @@ public class GameActivity extends AppCompatActivity {
         Display display = getWindowManager().getDefaultDisplay();
         size = new Point();
         display.getSize(size);
-        density = getResources().getDisplayMetrics().density;
-        Log.e("Density", String.valueOf(density));
         SWIPE_MIN_DISTANCE = (size.y/6);
 
         lives = new ArrayList<>();
         livesInit();
-
-        score = (customTextView) findViewById(R.id.score);
-        basicUtils.handler = new Handler() {
+        score = (CustomTextView) findViewById(R.id.score);
+        BasicUtils.handleScores = new Handler() {
             @Override
             public void handleMessage(Message msg) {
                 score.setText(String.valueOf(gameView.getPlayer().getScore()));
@@ -58,7 +54,38 @@ public class GameActivity extends AppCompatActivity {
             }
         };
 
-        gameView = new GameView(this, size.x, size.y, density);
+        BasicUtils.handleLives = new Handler() {
+            @Override
+            public void handleMessage(Message msg) {
+                Animation life_lost = AnimationUtils.loadAnimation(getApplicationContext(), R.anim.life_lost);
+                life_lost.setAnimationListener(new Animation.AnimationListener() {
+                    int curr;
+
+                    @Override
+                    public void onAnimationStart(Animation animation) {
+                        curr = life;
+                        life--;
+                    }
+
+                    @Override
+                    public void onAnimationEnd(Animation animation) {
+                        lives.get(curr).setVisibility(View.GONE);
+
+                    }
+
+                    @Override
+                    public void onAnimationRepeat(Animation animation) {
+
+                    }
+                });
+                lives.get(gameView.getPlayer().getLives()).startAnimation(life_lost);
+                if(gameView.getPlayer().getLives() == 0)
+                    gameOver();
+                super.handleMessage(msg);
+            }
+        };
+
+        gameView = new GameView(this, size.x, size.y);
         gameView.resume();
         lv = (LinearLayout) findViewById(R.id.linear_canvas);
         pause = (ImageButton) findViewById(R.id.pause_button);
@@ -107,19 +134,44 @@ public class GameActivity extends AppCompatActivity {
     private void gameOver() {
         gameView.pause();
         dialog.setContentView(R.layout.game_over);
+        CustomTextView score = (CustomTextView) dialog.findViewById(R.id.your_score);
+        CustomTextView highScore = (CustomTextView) dialog.findViewById(R.id.high_score);
+        score.setText(String.valueOf(gameView.getPlayer().getScore()));
+        if(!BasicUtils.scores.isEmpty() && gameView.getPlayer().getScore() < BasicUtils.scores.get(0).score) {
+            highScore.setText("HIGH SCORE: ".concat(String.valueOf(BasicUtils.scores.get(0).score)));
+        }
+        else {
+            highScore.setText("HIGH SCORE: ".concat(String.valueOf(gameView.getPlayer().getScore())));
+        }
+        score.startAnimation(AnimationUtils.loadAnimation(getApplicationContext(), R.anim.final_score));
         ImageButton retryButton = (ImageButton) dialog.findViewById(R.id.retry_button);
         ImageButton homeButton = (ImageButton) dialog.findViewById(R.id.home_button);
         retryButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                CustomEditText pName = (CustomEditText) dialog.findViewById(R.id.get_name);
+                if(TextUtils.isEmpty(pName.getText())){
+                    pName.setText("FBI");
+                }
+                ScoreItem current = new ScoreItem(BasicUtils.scores.size(), pName.getText().toString(), (int) gameView.getPlayer().getScore());
+                BasicUtils.scores.add(current);
+                BasicUtils.sortScores();
                 dialog.dismiss();
-                gameView = new GameView(getApplicationContext(), size.x, size.y, density);
+                gameView = new GameView(getApplicationContext(), size.x, size.y);
                 gameView.resume();
             }
         });
         homeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                CustomEditText pName = (CustomEditText) dialog.findViewById(R.id.get_name);
+                if(TextUtils.isEmpty(pName.getText())){
+                    pName.setText("FBI");
+                }
+                ScoreItem current = new ScoreItem(BasicUtils.scores.size(), pName.getText().toString(), (int) gameView.getPlayer().getScore());
+                BasicUtils.scores.add(current);
+                BasicUtils.sortScores();
+                dialog.dismiss();
                 finish();
             }
         });

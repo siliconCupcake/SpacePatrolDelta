@@ -9,6 +9,7 @@ import android.graphics.BitmapFactory;
 import android.graphics.Point;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.view.animation.AnimationUtils;
 import android.widget.FrameLayout;
@@ -19,7 +20,6 @@ public class SplashScreen extends AppCompatActivity {
 
     ImageView title, tap, bg;
     FrameLayout fl;
-    dbScores scoreDB = new dbScores(this);
 
 
     @Override
@@ -31,7 +31,7 @@ public class SplashScreen extends AppCompatActivity {
         title = (ImageView) findViewById(R.id.splash_title);
         tap = (ImageView) findViewById(R.id.splash_sub);
         bg = (ImageView) findViewById(R.id.splash_bg);
-        audioUtils.init(this);
+        AudioUtils.init(this);
 
         Bitmap bmp = BitmapFactory.decodeResource(this.getResources(), R.drawable.splash_background);
         Point screen = new Point();
@@ -39,14 +39,10 @@ public class SplashScreen extends AppCompatActivity {
         bg.setImageBitmap(Bitmap.createScaledBitmap(bmp, screen.x, screen.y, false));
 
         SharedPreferences prefs = getSharedPreferences("Preferences", MODE_PRIVATE);
-        audioUtils.bgm_volume = prefs.getInt("Volume", 1);
-        audioUtils.setBgmVolume();
+        AudioUtils.bgm_volume = prefs.getInt("Volume", 1);
+        AudioUtils.setBgmVolume();
 
-        scoreDB.open();
-        basicUtils.scores = scoreDB.getData();
-        scoreDB.close();
-
-        audioUtils.bgm.start();
+        AudioUtils.bgm.start();
         title.startAnimation(AnimationUtils.loadAnimation(getApplicationContext(), R.anim.splash_title));
         tap.startAnimation(AnimationUtils.loadAnimation(getApplicationContext(), R.anim.splash_sub));
 
@@ -66,7 +62,7 @@ public class SplashScreen extends AppCompatActivity {
     }
 
     private void confirmExit(){
-        audioUtils.bgm.pause();
+        AudioUtils.bgm.pause();
         final Dialog dialog = new Dialog(this, R.style.dialog);
         dialog.setContentView(R.layout.confirm_exit);
         ImageButton yesButton = (ImageButton) dialog.findViewById(R.id.yes_button);
@@ -74,14 +70,14 @@ public class SplashScreen extends AppCompatActivity {
         yesButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                audioUtils.bgm.stop();
+                AudioUtils.bgm.stop();
                 finish();
             }
         });
         noButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                audioUtils.bgm.start();
+                AudioUtils.bgm.start();
                 dialog.cancel();
             }
         });
@@ -89,23 +85,28 @@ public class SplashScreen extends AppCompatActivity {
         dialog.setOnDismissListener(new DialogInterface.OnDismissListener() {
             @Override
             public void onDismiss(DialogInterface dialogInterface) {
-                audioUtils.bgm.start();
+                AudioUtils.bgm.start();
             }
         });
     }
 
     @Override
     protected void onPause() {
-        if(audioUtils.bgm.isPlaying()) {
-            audioUtils.bgm.pause();
+        if(AudioUtils.bgm.isPlaying()) {
+            AudioUtils.bgm.pause();
         }
         super.onPause();
     }
 
     @Override
     protected void onResume() {
-        audioUtils.bgm.start();
+        AudioUtils.bgm.start();
         title.startAnimation(AnimationUtils.loadAnimation(getApplicationContext(), R.anim.splash_title));
         super.onResume();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
     }
 }

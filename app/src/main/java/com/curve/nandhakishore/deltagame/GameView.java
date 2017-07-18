@@ -5,10 +5,14 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Rect;
+import android.os.Handler;
 import android.os.Message;
+import android.os.SystemClock;
+import android.util.Log;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import java.util.ArrayList;
+import java.util.Random;
 
 
 public class GameView extends SurfaceView implements Runnable {
@@ -18,20 +22,27 @@ public class GameView extends SurfaceView implements Runnable {
     private Thread gameThread = null;
     private long score;
     private Player player;
-    private float dpi;
+    private long threadTime, pausedTime, startTime;
+    Runnable timer;
+    private Context context;
+    private int sx, sy;
+    private Handler cHandler = new Handler();
     private Paint paint;
     private Canvas canvas;
     private SurfaceHolder sHolder;
     private ArrayList<StarrySky> stars = new ArrayList<>();
     private ArrayList<Coins> coins = new ArrayList<>();
+    private ArrayList<Meteor> meteors = new ArrayList<>();
 
-
-    public GameView(Context con, int screenX, int screenY, float dpi) {
+    public GameView(Context con, int screenX, int screenY) {
         super(con);
+        this.context = con;
+        sx = screenX;
+        sy = screenY;
         player = new Player(con, screenX, screenY);
+        pausedTime = 0;
         sHolder = getHolder();
         paint = new Paint();
-        this.dpi = dpi;
 
         for (int i = 0; i < 75; i++) {
             StarrySky s = new StarrySky(con, screenX, screenY);
@@ -39,8 +50,19 @@ public class GameView extends SurfaceView implements Runnable {
         }
 
         for (int i = 0; i < 3; i++) {
-            Coins c = new Coins(con, screenX, screenY, i);
+            Coins c = new Coins(con, screenX, screenY, i, getMeteorAtLane(i));
             coins.add(c);
+        }
+
+        ArrayList<Integer> laneList = new ArrayList<>();
+        laneList.add(0); laneList.add(1); laneList.add(2);
+
+        for (int i = 0; i < 2; i++) {
+            Random generator = new Random();
+            int lane = generator.nextInt(laneList.size());
+            Meteor m = new Meteor(con, screenX, screenY, laneList.get(lane), getCoinAtLane(laneList.get(lane)));
+            laneList.remove(lane);
+            meteors.add(m);
         }
     }
 
@@ -51,7 +73,7 @@ public class GameView extends SurfaceView implements Runnable {
             update();
             draw();
             control();
-            basicUtils.handler.sendMessage(new Message());
+            BasicUtils.handleScores.sendMessage(new Message());
         }
     }
 
@@ -60,21 +82,45 @@ public class GameView extends SurfaceView implements Runnable {
         for(StarrySky s : stars) {
             s.update();
         }
+
+        threadTime = SystemClock.currentThreadTimeMillis() - pausedTime;
         for(Coins c : coins) {
-            c.update(score);
+            c.update(threadTime);
             if(Rect.intersects(player.getCollision(), c.getCollision())){
                 try {
-                    audioUtils.coin.stop();
-                    audioUtils.coin.prepare();
+                    AudioUtils.coin.stop();
+                    AudioUtils.coin.prepare();
                 }catch (Exception e){
                     e.printStackTrace();
                 }
-                audioUtils.coin.start();
+                AudioUtils.coin.start();
                 c.setX(-200);
                 player.incScore();
             }
         }
 
+        ArrayList<Meteor> tmp = new ArrayList<>();
+        for(Meteor m : meteors){
+            int check = m.update(threadTime);
+            if(check == 1) {
+                int newLane = nextRandomLane();
+                Meteor tm = new Meteor(context, sx, sy, newLane, getCoinAtLane(newLane));
+                tmp.add(tm);
+            }
+            else if(m.getBmp() == m.getMeteor() && Rect.intersects(player.getCollision(), m.getCollision())){
+                m.setBmp(m.getRubble());
+                tmp.add(m);
+                BasicUtils.handleLives.sendMessage(new Message());
+                player.decLife();
+                if(player.getLives() == 0){
+                    player.shipCrashed();
+                }
+            }
+            else {
+                tmp.add(m);
+            }
+        }
+        meteors = tmp;
     }
 
     private void draw(){
@@ -88,6 +134,10 @@ public class GameView extends SurfaceView implements Runnable {
 
             for (Coins c : coins) {
                 canvas.drawBitmap(c.getCoin(), c.getX(), c.getY(), paint);
+            }
+
+            for (Meteor m : meteors){
+                canvas.drawBitmap(m.getBmp(), m.getX(), m.getY(), paint);
             }
 
             canvas.drawBitmap(player.getShip(), player.getX(), player.getY(), paint);
@@ -105,6 +155,15 @@ public class GameView extends SurfaceView implements Runnable {
 
     public void pause() {
         playing = false;
+        startTime = SystemClock.currentThreadTimeMillis();
+        timer = new Runnable() {
+            @Override
+            public void run() {
+                pausedTime = pausedTime + (SystemClock.currentThreadTimeMillis() - startTime);
+                cHandler.post(this);
+            }
+        };
+        cHandler.post(timer);
         try {
             gameThread.join();
         } catch (InterruptedException e) {
@@ -116,6 +175,30 @@ public class GameView extends SurfaceView implements Runnable {
         playing = true;
         gameThread = new Thread(this);
         gameThread.start();
+        cHandler.removeCallbacks(timer);
+    }
+
+    private int nextRandomLane(){
+        int nextLane = 3;
+        for(Meteor m : meteors){
+            nextLane -= m.getCurrLane();
+        }
+        return nextLane;
+    }
+
+    private Coins getCoinAtLane (int lane) {
+        for(Coins c : coins){
+            if(c.getCurrLane() == lane)
+                return c;
+        }
+        return null;
+    }
+
+    private Meteor getMeteorAtLane (int lane) {
+        for (Meteor m : meteors)
+            if(m.getCurrLane() == lane)
+                return m;
+        return null;
     }
 
     public void setTarget(int target) {
