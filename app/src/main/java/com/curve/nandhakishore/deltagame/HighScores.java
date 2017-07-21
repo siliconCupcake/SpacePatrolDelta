@@ -80,6 +80,11 @@ public class HighScores extends AppCompatActivity {
         }
     }
 
+    @Override
+    protected void onStop() {
+        super.onStop();
+    }
+
     private void entryAnim() {
         title.startAnimation(AnimationUtils.loadAnimation(getApplicationContext(), R.anim.splash_title));
         reset.startAnimation(AnimationUtils.loadAnimation(getApplicationContext(), R.anim.start_button));

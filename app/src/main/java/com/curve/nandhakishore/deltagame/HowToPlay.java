@@ -1,5 +1,6 @@
 package com.curve.nandhakishore.deltagame;
 
+import android.support.v4.view.ViewPager;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.View;
@@ -16,6 +17,7 @@ public class HowToPlay extends AppCompatActivity {
     ImageButton next, prev, back;
     int index;
     ArrayList<Integer> images = new ArrayList<>();
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {

@@ -34,4 +34,13 @@ public class AudioUtils {
     public static void setMusicVolume() {
         bgm.setVolume(music_volume, music_volume);
     }
+
+    public static void stopAndPrepare(MediaPlayer mp) {
+        mp.stop();
+        try{
+            mp.prepare();
+        }catch (Exception e){
+            e.printStackTrace();
+        }
+    }
 }

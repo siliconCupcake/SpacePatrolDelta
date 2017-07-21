@@ -79,7 +79,12 @@ public class GameActivity extends AppCompatActivity {
 
                     }
                 });
-                lives.get(gameView.getPlayer().getLives()).startAnimation(life_lost);
+                try {
+                    lives.get(gameView.getPlayer().getLives()).startAnimation(life_lost);
+                }catch (Exception e){
+                    if(gameView.getPlayer().getLives() < 0)
+                        gameView.getPlayer().setLives(0);
+                }
                 if(gameView.getPlayer().getLives() == 0)
                     gameOver();
                 super.handleMessage(msg);
@@ -138,6 +143,7 @@ public class GameActivity extends AppCompatActivity {
         CustomTextView score = (CustomTextView) dialog.findViewById(R.id.your_score);
         CustomTextView highScore = (CustomTextView) dialog.findViewById(R.id.high_score);
         score.setText(String.valueOf(gameView.getPlayer().getScore()));
+        dialog.setCancelable(false);
         if(!BasicUtils.scores.isEmpty() && gameView.getPlayer().getScore() < BasicUtils.scores.get(0).score) {
             highScore.setText("HIGH SCORE: ".concat(String.valueOf(BasicUtils.scores.get(0).score)));
         }
@@ -231,6 +237,10 @@ public class GameActivity extends AppCompatActivity {
 
     @Override
     protected void onResume() {
+        if(gameView.getPlayer().getLives() == 0) {
+            dialog.dismiss();
+            gameOver();
+        }
         super.onResume();
     }
 

@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:id="@+id/parent"
+    android:layout_height="match_parent"
+    tools:context="com.curve.nandhakishore.deltagame.SplashScreen">
+
+    <ImageView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:id="@+id/scores_bg"
+        android:src="@drawable/splash_background"
+        android:scaleType="fitXY"
+        android:layout_gravity="center" />
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <ImageView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:id="@+id/scores_title"
+            android:layout_marginTop="25dp"
+            android:src="@drawable/high_scores"
+            android:scaleY="1"
+            android:scaleX="1" />
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:layout_below="@+id/scores_title"
+            android:id="@+id/rank_1"
+            android:layout_marginTop="40dp">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:scaleType="center"
+                android:id="@+id/medal_1"
+                android:layout_gravity="bottom"
+                android:layout_marginEnd="40dp"
+                android:src="@drawable/medal_1" />
+
+            <com.curve.nandhakishore.deltagame.CustomTextView
+                android:layout_width="175dp"
+                android:layout_height="wrap_content"
+                android:id="@+id/player_1"
+                android:text="KIS"
+                android:gravity="center_vertical|start"
+                android:textSize="55sp"
+                android:textColor="@android:color/white"
+                app:customFont="arcadepix_plus.ttf" />
+
+            <com.curve.nandhakishore.deltagame.CustomTextView
+                android:layout_width="125dp"
+                android:layout_height="wrap_content"
+                android:id="@+id/score_1"
+                android:text="9998"
+                android:gravity="center_vertical|end"
+                android:textSize="55sp"
+                android:textColor="@android:color/white"
+                app:customFont="arcadepix_plus.ttf" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/rank_2"
+            android:layout_centerHorizontal="true"
+            android:layout_below="@+id/rank_1"
+            android:layout_marginTop="30dp">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:scaleType="center"
+                android:id="@+id/medal_2"
+                android:layout_gravity="bottom"
+                android:layout_marginEnd="40dp"
+                android:src="@drawable/medal_2" />
+
+            <com.curve.nandhakishore.deltagame.CustomTextView
+                android:layout_width="175dp"
+                android:layout_height="wrap_content"
+                android:id="@+id/player_2"
+                android:text="SUJ"
+                android:gravity="center_vertical|start"
+                android:textSize="55sp"
+                android:textColor="@android:color/white"
+                app:customFont="arcadepix_plus.ttf" />
+
+            <com.curve.nandhakishore.deltagame.CustomTextView
+                android:layout_width="125dp"
+                android:layout_height="wrap_content"
+                android:id="@+id/score_2"
+                android:text="4256"
+                android:gravity="center_vertical|end"
+                android:textSize="55sp"
+                android:textColor="@android:color/white"
+                app:customFont="arcadepix_plus.ttf" />
+
+        </LinearLayout>
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerHorizontal="true"
+            android:id="@+id/rank_3"
+            android:layout_below="@+id/rank_2"
+            android:layout_marginTop="30dp">
+
+            <ImageView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:scaleType="center"
+                android:id="@+id/medal_3"
+                android:layout_gravity="bottom"
+                android:layout_marginEnd="40dp"
+                android:src="@drawable/medal_3" />
+
+            <com.curve.nandhakishore.deltagame.CustomTextView
+                android:layout_width="175dp"
+                android:layout_height="wrap_content"
+                android:id="@+id/player_3"
+                android:text="NAV"
+                android:gravity="center_vertical|start"
+                android:textSize="55sp"
+                android:textColor="@android:color/white"
+                app:customFont="arcadepix_plus.ttf" />
+
+            <com.curve.nandhakishore.deltagame.CustomTextView
+                android:layout_width="125dp"
+                android:layout_height="wrap_content"
+                android:id="@+id/score_3"
+                android:text="1000"
+                android:gravity="center_vertical|end"
+                android:textSize="55sp"
+                android:textColor="@android:color/white"
+                app:customFont="arcadepix_plus.ttf" />
+
+        </LinearLayout>
+
+
+    </RelativeLayout>
+
+    <ImageButton
+        android:layout_width="49dp"
+        android:layout_height="49dp"
+        android:layout_gravity="bottom|end"
+        android:id="@+id/reset_button"
+        android:src="@drawable/reset_button"
+        android:layout_marginBottom="15dp"
+        android:layout_marginEnd="15dp"
+        android:scaleType="center" />
+
+    <ImageButton
+        android:layout_width="32dp"
+        android:layout_height="24dp"
+        android:layout_gravity="top|start"
+        android:id="@+id/back_button"
+        android:src="@drawable/go_back"
+        android:layout_marginTop="30dp"
+        android:layout_marginStart="30dp"
+        android:scaleY="1.5"
+        android:scaleX="1.5"
+        android:scaleType="center" />
+
+    <ImageView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/signature"
+        android:scaleX="1"
+        android:scaleY="1"
+        android:layout_marginBottom="5dp"
+        android:src="@drawable/sign"
+        android:layout_gravity="center_horizontal|bottom" />
+
+</FrameLayout>

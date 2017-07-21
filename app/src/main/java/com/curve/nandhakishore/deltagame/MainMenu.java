@@ -23,6 +23,7 @@ public class MainMenu extends AppCompatActivity {
 
     ImageView title, sign;
     ImageView bg;
+    Boolean shouldPause = true;
     dbScores scoreDB = new dbScores(this);
     ImageButton start, scores, exit, sound, music, info;
 
@@ -32,7 +33,10 @@ public class MainMenu extends AppCompatActivity {
         setContentView(R.layout.main_menu);
 
         uiInit();
-        AudioUtils.bgm.start();
+        try {
+            AudioUtils.bgm.start();
+        }catch (Exception e){
+        }
         entryAnim();
         scoreDB.open();
         BasicUtils.scores = scoreDB.getData();
@@ -86,7 +90,7 @@ public class MainMenu extends AppCompatActivity {
                 Intent help = new Intent(getApplicationContext(), HowToPlay.class);
                 startActivity(help);
                 overridePendingTransition(R.anim.activity_fadein, R.anim.activity_fadeout);
-                stopAndPrepare(AudioUtils.bgm);
+                AudioUtils.stopAndPrepare(AudioUtils.bgm);
             }
         });
 
@@ -98,7 +102,8 @@ public class MainMenu extends AppCompatActivity {
                 startGame.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
                 startActivity(startGame);
                 overridePendingTransition(R.anim.activity_fadein, R.anim.activity_fadeout);
-                stopAndPrepare(AudioUtils.bgm);
+                AudioUtils.stopAndPrepare(AudioUtils.bgm);
+                shouldPause = true;
             }
         });
 
@@ -110,7 +115,7 @@ public class MainMenu extends AppCompatActivity {
                 viewScores.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
                 startActivity(viewScores);
                 overridePendingTransition(R.anim.activity_fadein, R.anim.activity_fadeout);
-                stopAndPrepare(AudioUtils.bgm);
+                shouldPause = false;
             }
         });
 
@@ -148,15 +153,6 @@ public class MainMenu extends AppCompatActivity {
         }
         else if(AudioUtils.music_volume == 0){
             music.setImageResource(R.drawable.musicoff_button);
-        }
-    }
-
-    private void stopAndPrepare(MediaPlayer mp) {
-        mp.stop();
-        try{
-            mp.prepare();
-        }catch (Exception e){
-            e.printStackTrace();
         }
     }
 
@@ -209,7 +205,7 @@ public class MainMenu extends AppCompatActivity {
 
     @Override
     protected void onPause() {
-        if(AudioUtils.bgm.isPlaying())
+        if(shouldPause && AudioUtils.bgm.isPlaying())
             AudioUtils.bgm.pause();
         SharedPreferences sPrefs = getSharedPreferences("Preferences", MODE_PRIVATE);
         SharedPreferences.Editor editor = sPrefs.edit();
@@ -221,7 +217,8 @@ public class MainMenu extends AppCompatActivity {
 
     @Override
     protected void onResume() {
-        AudioUtils.bgm.start();
+        if (!AudioUtils.bgm.isPlaying())
+            AudioUtils.bgm.start();
         entryAnim();
         super.onResume();
     }
@@ -239,7 +236,6 @@ public class MainMenu extends AppCompatActivity {
         scoreDB.removeRows();
         for(int n = 0; n < 3; n++) {
             try{
-                Log.e("GameActivity", "Values sent to DB: Name - " + BasicUtils.scores.get(n).name + " Score - " + String.valueOf(BasicUtils.scores.get(n).score));
                 scoreDB.createEntry(BasicUtils.scores.get(n));
             }catch (Exception e){
                 Log.d("DB", "No item at position " + String.valueOf(n));

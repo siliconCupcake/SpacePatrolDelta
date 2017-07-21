@@ -133,6 +133,10 @@ public class Player {
         return currLane;
     }
 
+    public void setLives(int lives) {
+        this.lives = lives;
+    }
+
     public int getState() {
         return state;
     }
