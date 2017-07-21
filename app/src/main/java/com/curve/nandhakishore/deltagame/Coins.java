@@ -18,10 +18,11 @@ public class Coins {
     private Bitmap coin;
     private int x;
     private int y;
-    private long slab = 5000;
+    private long slab = 500;
     private int coinHeight;
     private int coinWidth;
     private int maxX;
+    private long runTime;
     private int laneHeight;
     private int currLane;
     private int speed;
@@ -36,9 +37,10 @@ public class Coins {
         padding = laneHeight/3;
         coinHeight = laneHeight - (padding * 2);
         coinWidth = coinHeight;
+        runTime = 0;
         currLane = coin_lane;
         coin = Bitmap.createScaledBitmap(coin, coinWidth, coinHeight, false);
-        speed = 10;
+        speed = 5;
         Random generator = new Random();
         y = padding + (currLane * laneHeight);
         x = maxX + generator.nextInt(maxX);
@@ -47,10 +49,10 @@ public class Coins {
         collision = new Rect(x, y, x + coin.getWidth(), y + coin.getHeight());
     }
 
-    public void update(long score) {
-        if(speed < maxX/72 && score > slab) {
-            speed += 1;
-            slab += 7500;
+    public void update() {
+        if(speed < maxX/72 && runTime > slab) {
+            speed += 2;
+            slab += 500;
         }
         x -= speed;
         if(x < -coinWidth){
@@ -80,8 +82,20 @@ public class Coins {
         return coin;
     }
 
+    public long getRunTime() {
+        return runTime;
+    }
+
+    public void setRunTime(long runTime) {
+        this.runTime = runTime;
+    }
+
     public int getX() {
         return x;
+    }
+
+    public int getSpeed() {
+        return speed;
     }
 
     public int getY() {

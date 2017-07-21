@@ -26,11 +26,6 @@ public class HighScores extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.high_scores);
 
-        for (int i = 0; i < BasicUtils.scores.size(); i++){
-            Log.e("BasicUtils.scores", BasicUtils.scores.get(i).name
-                    + ", " + String.valueOf(BasicUtils.scores.get(i).score) + " at index " + String.valueOf(i));
-        }
-
         tvInit();
         hScores.open();
         reset = (ImageButton) findViewById(R.id.reset_button);

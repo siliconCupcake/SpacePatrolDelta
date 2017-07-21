@@ -1,6 +1,8 @@
 package com.curve.nandhakishore.deltagame;
 
-public class ScoreItem {
+import android.support.annotation.NonNull;
+
+public class ScoreItem implements Comparable<ScoreItem>{
 
     int sno;
     String name;
@@ -11,5 +13,11 @@ public class ScoreItem {
         name = n;
         score = s;
     }
+
+    @Override
+    public int compareTo(@NonNull ScoreItem scoreItem) {
+        return ((Integer) score).compareTo(scoreItem.score);
+    }
+
 
 }

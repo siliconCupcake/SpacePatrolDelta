@@ -22,11 +22,9 @@ public class GameView extends SurfaceView implements Runnable {
     private Thread gameThread = null;
     private long score;
     private Player player;
-    private long threadTime, pausedTime, startTime;
-    Runnable timer;
+    private long threadTime, pastTime;
     private Context context;
     private int sx, sy;
-    private Handler cHandler = new Handler();
     private Paint paint;
     private Canvas canvas;
     private SurfaceHolder sHolder;
@@ -39,8 +37,8 @@ public class GameView extends SurfaceView implements Runnable {
         this.context = con;
         sx = screenX;
         sy = screenY;
+        pastTime = 0;
         player = new Player(con, screenX, screenY);
-        pausedTime = 0;
         sHolder = getHolder();
         paint = new Paint();
 
@@ -83,9 +81,10 @@ public class GameView extends SurfaceView implements Runnable {
             s.update();
         }
 
-        threadTime = SystemClock.currentThreadTimeMillis() - pausedTime;
+        threadTime = SystemClock.currentThreadTimeMillis();
         for(Coins c : coins) {
-            c.update(threadTime);
+            c.setRunTime(pastTime + threadTime);
+            c.update();
             if(Rect.intersects(player.getCollision(), c.getCollision())){
                 try {
                     AudioUtils.coin.stop();
@@ -101,10 +100,12 @@ public class GameView extends SurfaceView implements Runnable {
 
         ArrayList<Meteor> tmp = new ArrayList<>();
         for(Meteor m : meteors){
-            int check = m.update(threadTime);
+            m.setRunTime(pastTime + threadTime);
+            int check = m.update();
             if(check == 1) {
                 int newLane = nextRandomLane();
                 Meteor tm = new Meteor(context, sx, sy, newLane, getCoinAtLane(newLane));
+                tm.setSpeed(m.getSpeed());
                 tmp.add(tm);
             }
             else if(m.getBmp() == m.getMeteor() && Rect.intersects(player.getCollision(), m.getCollision())){
@@ -114,7 +115,20 @@ public class GameView extends SurfaceView implements Runnable {
                 player.decLife();
                 if(player.getLives() == 0){
                     player.shipCrashed();
+                    try{
+                        AudioUtils.explosion.stop();
+                        AudioUtils.explosion.prepare();
+                    }catch (Exception e) {
+                    }
+                    AudioUtils.explosion.start();
                 }
+                try {
+                    AudioUtils.meteor.stop();
+                    AudioUtils.meteor.prepare();
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
+                AudioUtils.meteor.start();
             }
             else {
                 tmp.add(m);
@@ -155,27 +169,18 @@ public class GameView extends SurfaceView implements Runnable {
 
     public void pause() {
         playing = false;
-        startTime = SystemClock.currentThreadTimeMillis();
-        timer = new Runnable() {
-            @Override
-            public void run() {
-                pausedTime = pausedTime + (SystemClock.currentThreadTimeMillis() - startTime);
-                cHandler.post(this);
-            }
-        };
-        cHandler.post(timer);
         try {
             gameThread.join();
         } catch (InterruptedException e) {
             e.printStackTrace();
         }
+        pastTime += threadTime;
     }
 
     public void resume() {
         playing = true;
         gameThread = new Thread(this);
         gameThread.start();
-        cHandler.removeCallbacks(timer);
     }
 
     private int nextRandomLane(){

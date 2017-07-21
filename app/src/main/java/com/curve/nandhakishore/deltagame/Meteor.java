@@ -12,11 +12,12 @@ public class Meteor {
     private Bitmap meteor, rubble, bmp;
     private int x;
     private int y;
-    private long slab = 10;
+    private long slab = 500;
     private int meteorHeight;
     private int meteorWidth;
     private int maxX;
     private int laneHeight;
+    private long runTime;
     private int currLane;
     private int speed;
     private int padding;
@@ -31,6 +32,7 @@ public class Meteor {
         meteorHeight = laneHeight - (padding * 2);
         meteorWidth = meteorHeight;
         currLane = meteor_lane;
+        runTime = 0;
         meteor = Bitmap.createScaledBitmap(meteor, meteorWidth, meteorHeight, false);
         rubble = Bitmap.createScaledBitmap(rubble, meteorWidth, meteorHeight, false);
         bmp = meteor;
@@ -43,10 +45,10 @@ public class Meteor {
         collision = new Rect(x, y, x + meteor.getWidth(), y + meteor.getHeight());
     }
 
-    public int update(long score){
-        if(speed < maxX/72 && score > slab){
+    public int update(){
+        if(speed < maxX/72 && runTime > slab){
             speed += 2;
-            slab += 10000;
+            slab += 500;
         }
         x -= speed;
 
@@ -83,6 +85,22 @@ public class Meteor {
 
     public int getY() {
         return y;
+    }
+
+    public int getSpeed() {
+        return speed;
+    }
+
+    public void setSpeed(int speed) {
+        this.speed = speed;
+    }
+
+    public long getRunTime() {
+        return runTime;
+    }
+
+    public void setRunTime(long runTime) {
+        this.runTime = runTime;
     }
 
     public int getMeteorWidth() {

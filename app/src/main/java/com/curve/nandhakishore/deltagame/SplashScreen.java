@@ -9,7 +9,6 @@ import android.graphics.BitmapFactory;
 import android.graphics.Point;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.View;
 import android.view.animation.AnimationUtils;
 import android.widget.FrameLayout;
@@ -39,8 +38,10 @@ public class SplashScreen extends AppCompatActivity {
         bg.setImageBitmap(Bitmap.createScaledBitmap(bmp, screen.x, screen.y, false));
 
         SharedPreferences prefs = getSharedPreferences("Preferences", MODE_PRIVATE);
-        AudioUtils.bgm_volume = prefs.getInt("Volume", 1);
-        AudioUtils.setBgmVolume();
+        AudioUtils.sound_volume = prefs.getInt("soundVolume", 1);
+        AudioUtils.music_volume = prefs.getInt("musicVolume", 1);
+        AudioUtils.setSoundVolume();
+        AudioUtils.setMusicVolume();
 
         AudioUtils.bgm.start();
         title.startAnimation(AnimationUtils.loadAnimation(getApplicationContext(), R.anim.splash_title));
@@ -71,6 +72,7 @@ public class SplashScreen extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 AudioUtils.bgm.stop();
+                dialog.dismiss();
                 finish();
             }
         });

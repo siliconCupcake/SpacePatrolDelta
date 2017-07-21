@@ -19,7 +19,7 @@ public class dbScores {
     private static final String C_NAME = "NAME";
     private String[] allColumns = {C_ID, C_NAME, C_SCORE};
 
-    private static final String CREATE_DB = "CREATE TABLE " + TABLE_NAME + "( " + C_ID + " INTEGER PRIMARY KEY AUTO_INCREMENT, "
+    private static final String CREATE_DB = "CREATE TABLE " + TABLE_NAME + "( " + C_ID + " INTEGER PRIMARY KEY AUTOINCREMENT, "
             + C_NAME + " TEXT, " + C_SCORE + " INTEGER);";
 
     private static final String QUERY_SELECT = "SELECT * FROM " + TABLE_NAME + " ORDER BY " + C_SCORE + " DESC" ;
@@ -61,7 +61,7 @@ public class dbScores {
     }
 
     public long createEntry (ScoreItem c) {
-        Log.e("DB values", "Name - " + c.name + "Score - " + String.valueOf(c.score));
+        Log.e("dbScores", "Values recieved at DB: Name - " + c.name + " Score - " + String.valueOf(c.score));
         ContentValues cv = new ContentValues();
         cv.put(C_NAME, c.name);
         cv.put(C_SCORE, c.score);
@@ -71,8 +71,9 @@ public class dbScores {
 
     public ArrayList<ScoreItem> getData() {
         ArrayList<ScoreItem> list = new ArrayList<>();
-        Cursor c = myDatabase.rawQuery(QUERY_SELECT, null);
+        Cursor c = myDatabase.query(TABLE_NAME, allColumns, null, null, null, null, C_SCORE + " DESC");
         for(c.moveToFirst(); !c.isAfterLast(); c.moveToNext()) {
+            Log.e("dbScores", "Getting values: id - " + String.valueOf(c.getInt(0)) + ", name - " + c.getString(1) + ", score - " + String.valueOf(c.getInt(2)));
             ScoreItem row = new ScoreItem(c.getInt(0), c.getString(1), c.getInt(2));
             list.add(row);
         }
