@@ -23,9 +23,10 @@ public class MainMenu extends AppCompatActivity {
 
     ImageView title, sign;
     ImageView bg;
-    Boolean shouldPause = true;
+    boolean swipe = true;
+    Boolean shouldPause;
     dbScores scoreDB = new dbScores(this);
-    ImageButton start, scores, exit, sound, music, info;
+    ImageButton start, scores, exit, sound, music, info, control;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -47,10 +48,8 @@ public class MainMenu extends AppCompatActivity {
             }
         });
         Collections.reverse(BasicUtils.scores);
-        for (int i = 0; i < BasicUtils.scores.size(); i++){
-            Log.e("MainMenu", "ArrayList: " + BasicUtils.scores.get(i).name
-                    + ", " + String.valueOf(BasicUtils.scores.get(i).score) + " at index " + String.valueOf(i));
-        }
+        SharedPreferences prefs = getSharedPreferences("Preferences", MODE_PRIVATE);
+        swipe = prefs.getBoolean("control", true);
 
         sound.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -64,6 +63,20 @@ public class MainMenu extends AppCompatActivity {
                     AudioUtils.sound_volume = 1;
                     AudioUtils.setSoundVolume();
                     sound.setImageResource(R.drawable.volume_button);
+                }
+            }
+        });
+
+        control.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                if (swipe){
+                    swipe = !swipe;
+                    control.setImageResource(R.drawable.accel_button);
+                }
+                else {
+                    swipe = !swipe;
+                    control.setImageResource(R.drawable.swipe_button);
                 }
             }
         });
@@ -91,6 +104,7 @@ public class MainMenu extends AppCompatActivity {
                 startActivity(help);
                 overridePendingTransition(R.anim.activity_fadein, R.anim.activity_fadeout);
                 AudioUtils.stopAndPrepare(AudioUtils.bgm);
+                shouldPause = true;
             }
         });
 
@@ -100,6 +114,7 @@ public class MainMenu extends AppCompatActivity {
 
                 Intent startGame = new Intent(getApplicationContext(), GameActivity.class);
                 startGame.setFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+                startGame.putExtra("controls", swipe);
                 startActivity(startGame);
                 overridePendingTransition(R.anim.activity_fadein, R.anim.activity_fadeout);
                 AudioUtils.stopAndPrepare(AudioUtils.bgm);
@@ -137,6 +152,7 @@ public class MainMenu extends AppCompatActivity {
         sign = (ImageView) findViewById(R.id.signature);
         music = (ImageButton) findViewById(R.id.music_button);
         info = (ImageButton) findViewById(R.id.info);
+        control = (ImageButton) findViewById(R.id.controls);
         Bitmap bmp = BitmapFactory.decodeResource(this.getResources(), R.drawable.splash_background);
         Point screen = new Point();
         getWindowManager().getDefaultDisplay().getSize(screen);
@@ -154,6 +170,11 @@ public class MainMenu extends AppCompatActivity {
         else if(AudioUtils.music_volume == 0){
             music.setImageResource(R.drawable.musicoff_button);
         }
+
+        if(swipe)
+            control.setImageResource(R.drawable.swipe_button);
+        else
+            control.setImageResource(R.drawable.accel_button);
     }
 
     private void confirmExit(){
@@ -195,6 +216,7 @@ public class MainMenu extends AppCompatActivity {
         sign.startAnimation(AnimationUtils.loadAnimation(getApplicationContext(), R.anim.signature));
         music.startAnimation(AnimationUtils.loadAnimation(getApplicationContext(), R.anim.sound_button));
         info.startAnimation(AnimationUtils.loadAnimation(getApplicationContext(), R.anim.sound_button));
+        control.startAnimation(AnimationUtils.loadAnimation(getApplicationContext(), R.anim.sound_button));
     }
 
     @Override
@@ -209,6 +231,7 @@ public class MainMenu extends AppCompatActivity {
             AudioUtils.bgm.pause();
         SharedPreferences sPrefs = getSharedPreferences("Preferences", MODE_PRIVATE);
         SharedPreferences.Editor editor = sPrefs.edit();
+        editor.putBoolean("control", swipe);
         editor.putInt("soundVolume", AudioUtils.sound_volume);
         editor.putInt("musicVolume", AudioUtils.music_volume);
         editor.apply();

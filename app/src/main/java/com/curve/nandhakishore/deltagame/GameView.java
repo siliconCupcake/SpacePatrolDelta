@@ -9,6 +9,7 @@ import android.os.Handler;
 import android.os.Message;
 import android.os.SystemClock;
 import android.util.Log;
+import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
 import java.util.ArrayList;
@@ -22,13 +23,16 @@ public class GameView extends SurfaceView implements Runnable {
     private Thread gameThread = null;
     private long score;
     private Player player;
-    private long threadTime, pastTime;
+    private int bulletCount = 2;
+    private boolean top = true;
+    private long threadTime, pastTime, bulletTime;
     private Context context;
     private int sx, sy;
     private Paint paint;
     private Canvas canvas;
     private SurfaceHolder sHolder;
     private ArrayList<StarrySky> stars = new ArrayList<>();
+    private ArrayList<Bullet> bullets = new ArrayList<>();
     private ArrayList<Coins> coins = new ArrayList<>();
     private ArrayList<Meteor> meteors = new ArrayList<>();
 
@@ -38,6 +42,7 @@ public class GameView extends SurfaceView implements Runnable {
         sx = screenX;
         sy = screenY;
         pastTime = 0;
+        bulletTime = 0;
         player = new Player(con, screenX, screenY);
         sHolder = getHolder();
         paint = new Paint();
@@ -64,7 +69,6 @@ public class GameView extends SurfaceView implements Runnable {
         }
     }
 
-
     @Override
     public void run() {
         while(playing){
@@ -82,6 +86,7 @@ public class GameView extends SurfaceView implements Runnable {
         }
 
         threadTime = SystemClock.currentThreadTimeMillis();
+
         for(Coins c : coins) {
             c.setRunTime(pastTime + threadTime);
             c.update();
@@ -98,15 +103,34 @@ public class GameView extends SurfaceView implements Runnable {
             }
         }
 
+        ArrayList<Bullet> bt = new ArrayList<>();
+        for (Bullet b : bullets){
+            b.update();
+            if (b.getX() != sx)
+                bt.add(b);
+        }
+        bullets = bt;
+
         ArrayList<Meteor> tmp = new ArrayList<>();
         for(Meteor m : meteors){
             m.setRunTime(pastTime + threadTime);
             int check = m.update();
             if(check == 1) {
-                int newLane = nextRandomLane();
+                int newLane = nextRandomLane(m);
                 Meteor tm = new Meteor(context, sx, sy, newLane, getCoinAtLane(newLane));
                 tm.setSpeed(m.getSpeed());
                 tmp.add(tm);
+            }
+            else if (hitBullet(m)){
+                m.setBmp(m.getRubble());
+                tmp.add(m);
+                try {
+                    AudioUtils.meteor.stop();
+                    AudioUtils.meteor.prepare();
+                }catch (Exception e){
+                    e.printStackTrace();
+                }
+                AudioUtils.meteor.start();
             }
             else if(m.getBmp() == m.getMeteor() && Rect.intersects(player.getCollision(), m.getCollision())){
                 m.setBmp(m.getRubble());
@@ -154,6 +178,10 @@ public class GameView extends SurfaceView implements Runnable {
                 canvas.drawBitmap(m.getBmp(), m.getX(), m.getY(), paint);
             }
 
+            for (Bullet b : bullets){
+                canvas.drawBitmap(b.getBullet(), b.getX(), b.getY(), paint);
+            }
+
             canvas.drawBitmap(player.getShip(), player.getX(), player.getY(), paint);
             sHolder.unlockCanvasAndPost(canvas);
         }
@@ -183,12 +211,55 @@ public class GameView extends SurfaceView implements Runnable {
         gameThread.start();
     }
 
-    private int nextRandomLane(){
+    public void createBullet(){
+        if(bulletCount > 0){
+            final Bullet b = new Bullet(context, sx, sy, player, top);
+            top = !top;
+            bullets.add(b);
+            bulletCount--;
+            Thread timer = new Thread(){
+                @Override
+                public void run() {
+                    try{
+                        sleep(2000);
+                    }catch (Exception e){
+                        Log.e("TimerThread", "Some error");
+                    }
+                    finally {
+                        bulletCount++;
+                    }
+                    super.run();
+                }
+            };
+            timer.start();
+        }
+    }
+
+    private boolean hitBullet(Meteor m){
+        ArrayList<Bullet> tb = new ArrayList<>();
+        boolean ans = false;
+        for (Bullet b : bullets){
+            if (b.getCollision().intersect(m.getCollision()))
+                ans = true;
+            else
+                tb.add(b);
+        }
+        bullets = tb;
+        return ans;
+    }
+
+    private int nextRandomLane(Meteor met){
         int nextLane = 3;
+        if(meteors.get(0).getX() == meteors.get(1).getX())
+            return met.getCurrLane();
         for(Meteor m : meteors){
             nextLane -= m.getCurrLane();
         }
         return nextLane;
+    }
+
+    public int getBulletCount() {
+        return bulletCount;
     }
 
     private Coins getCoinAtLane (int lane) {

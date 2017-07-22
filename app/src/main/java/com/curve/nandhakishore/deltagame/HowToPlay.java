@@ -9,6 +9,8 @@ import android.view.animation.AnimationUtils;
 import android.widget.ImageButton;
 import android.widget.ImageView;
 
+import com.bumptech.glide.Glide;
+
 import java.util.ArrayList;
 
 public class HowToPlay extends AppCompatActivity {
@@ -27,6 +29,7 @@ public class HowToPlay extends AppCompatActivity {
         images.add(R.drawable.swipe);
         images.add(R.drawable.collect);
         images.add(R.drawable.avoid);
+        images.add(R.drawable.fire);
         index = 0;
 
         next = (ImageButton) findViewById(R.id.next_button);
@@ -45,13 +48,13 @@ public class HowToPlay extends AppCompatActivity {
         next_out.setAnimationListener(new Animation.AnimationListener() {
             @Override
             public void onAnimationStart(Animation animation) {
-                follow.setImageResource(images.get(index + 1));
+                Glide.with(getApplicationContext()).load(images.get(index + 1)).into(follow);
                 follow.startAnimation(next_in);
             }
 
             @Override
             public void onAnimationEnd(Animation animation) {
-                current.setImageResource(images.get(index + 1));
+                Glide.with(getApplicationContext()).load(images.get(index + 1)).into(current);
                 index++;
             }
 
@@ -64,13 +67,13 @@ public class HowToPlay extends AppCompatActivity {
         prev_out.setAnimationListener(new Animation.AnimationListener() {
             @Override
             public void onAnimationStart(Animation animation) {
-                follow.setImageResource(images.get(index - 1));
+                Glide.with(getApplicationContext()).load(images.get(index - 1)).into(follow);
                 follow.startAnimation(prev_in);
             }
 
             @Override
             public void onAnimationEnd(Animation animation) {
-                current.setImageResource(images.get(index - 1));
+                Glide.with(getApplicationContext()).load(images.get(index - 1)).into(current);
                 index--;
             }
 

@@ -88,4 +88,36 @@
 
     </RelativeLayout>
 
+    <RelativeLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_gravity="bottom|start"
+        android:layout_marginBottom="15dp"
+        android:layout_marginStart="15dp">
+
+        <com.curve.nandhakishore.deltagame.CustomTextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/bullet_count"
+            android:layout_marginEnd="6dp"
+            app:customFont="arcadepix_plus.ttf"
+            android:layout_centerVertical="true"
+            android:textSize="45sp"
+            android:textColor="@android:color/white"
+            android:text="058" />
+
+        <ImageView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/bullet"
+            android:scaleType="center"
+            android:layout_toEndOf="@id/bullet_count"
+            android:layout_centerVertical="true"
+            android:layout_marginEnd="15dp"
+            android:scaleX="1.5"
+            android:scaleY="1.5"
+            android:src="@drawable/bullet" />
+
+    </RelativeLayout>
+
 </FrameLayout>

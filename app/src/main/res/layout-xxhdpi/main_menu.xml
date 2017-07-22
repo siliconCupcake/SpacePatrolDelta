@@ -81,6 +81,15 @@
         <ImageButton
             android:layout_width="49dp"
             android:layout_height="49dp"
+            android:id="@+id/controls"
+            android:layout_toEndOf="@+id/info"
+            android:layout_marginStart="15dp"
+            android:src="@drawable/swipe_button"
+            android:scaleType="center"/>
+
+        <ImageButton
+            android:layout_width="49dp"
+            android:layout_height="49dp"
             android:id="@+id/sound_button"
             android:layout_alignParentEnd="true"
             android:src="@drawable/volume_button"

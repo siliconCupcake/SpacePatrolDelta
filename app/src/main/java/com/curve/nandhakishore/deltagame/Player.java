@@ -141,6 +141,10 @@ public class Player {
         return state;
     }
 
+    public int getShipWidth() {
+        return shipWidth;
+    }
+
     public void setScore(long score) {
         this.score = score;
     }
@@ -151,6 +155,10 @@ public class Player {
 
     public void decLife() {
         lives--;
+    }
+
+    public int getShipHeight() {
+        return shipHeight;
     }
 
     public int getLives() {

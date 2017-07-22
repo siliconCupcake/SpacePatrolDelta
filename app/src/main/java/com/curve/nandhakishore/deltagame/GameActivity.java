@@ -1,10 +1,16 @@
 package com.curve.nandhakishore.deltagame;
 
 import android.app.Dialog;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.graphics.Point;
+import android.hardware.Sensor;
+import android.hardware.SensorEvent;
+import android.hardware.SensorEventListener;
+import android.hardware.SensorManager;
 import android.os.Handler;
 import android.os.Message;
+import android.os.SystemClock;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.text.TextUtils;
@@ -26,13 +32,20 @@ public class GameActivity extends AppCompatActivity {
 
     Dialog dialog;
     int life = 2;
+    boolean swipe, detect;
     ArrayList<ImageView> lives;
     ImageButton pause;
     GameView gameView;
     Point size = new Point();
+    float last_x;
     LinearLayout lv;
-    CustomTextView score;
+    CustomTextView score, bullets;
+    Sensor accelerometer;
+    long lastUpdate;
+    SensorManager aManager;
+    SensorEventListener aListener;
     private int SWIPE_MIN_DISTANCE;
+    private int ACCEL_MIN_SPEED = 100;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -43,14 +56,62 @@ public class GameActivity extends AppCompatActivity {
         size = new Point();
         display.getSize(size);
         SWIPE_MIN_DISTANCE = (size.y/6);
+        lastUpdate = 0;
+        detect = true;
+        swipe = getIntent().getBooleanExtra("controls", swipe);
+
+        aManager = (SensorManager) getSystemService(SENSOR_SERVICE);
+        accelerometer = aManager.getDefaultSensor(Sensor.TYPE_ACCELEROMETER);
+        aListener = new SensorEventListener() {
+            @Override
+            public void onSensorChanged(SensorEvent sensorEvent) {
+                if(!swipe && sensorEvent.sensor.getType() == Sensor.TYPE_ACCELEROMETER && gameView.getPlayer().getState() == 0){
+                    float x = sensorEvent.values[0];
+                    if (x > -3 && x < 3)
+                        detect = true;
+                    else
+                        detect = false;
+
+                    if (detect && (System.currentTimeMillis() - lastUpdate) > 100) {
+                        Log.e("GameActivity", "Accelerometer X: " + String.valueOf(x));
+                        long diffTime = (System.currentTimeMillis() - lastUpdate);
+                        lastUpdate = System.currentTimeMillis();
+                        float speed = (x - last_x)/ diffTime * 10000;
+                        try {
+                            if (speed < 0 && Math.abs(speed) > ACCEL_MIN_SPEED) {    //swipe up
+                                if (gameView.getPlayer().getLane() > -1)
+                                    gameView.setTarget(gameView.getPlayer().getLane() - 1);
+                                else
+                                    gameView.setTarget(gameView.getPlayer().getLane());
+                            } else if (speed > 0 && Math.abs(speed) > ACCEL_MIN_SPEED) {     //swipe down
+                                if (gameView.getPlayer().getLane() < 1)
+                                    gameView.setTarget(gameView.getPlayer().getLane() + 1);
+                                else
+                                    gameView.setTarget(gameView.getPlayer().getLane());
+                            }
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                        last_x = x;
+                    }
+                }
+            }
+
+            @Override
+            public void onAccuracyChanged(Sensor sensor, int i) {
+
+            }
+        };
 
         lives = new ArrayList<>();
         livesInit();
         score = (CustomTextView) findViewById(R.id.score);
+        bullets = (CustomTextView) findViewById(R.id.bullet_count);
         BasicUtils.handleScores = new Handler() {
             @Override
             public void handleMessage(Message msg) {
                 score.setText(String.valueOf(gameView.getPlayer().getScore()));
+                bullets.setText(String.valueOf(gameView.getBulletCount()));
                 super.handleMessage(msg);
             }
         };
@@ -118,13 +179,16 @@ public class GameActivity extends AppCompatActivity {
 
     private void gamePaused(){
 
+        aManager.unregisterListener(aListener);
         dialog.setContentView(R.layout.pause_menu);
+        dialog.setCancelable(false);
         ImageButton resumeButton = (ImageButton) dialog.findViewById(R.id.resume_button);
         ImageButton quitButton = (ImageButton) dialog.findViewById(R.id.quit_button);
         resumeButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 dialog.dismiss();
+                aManager.registerListener(aListener, accelerometer, SensorManager.SENSOR_DELAY_GAME);
                 gameView.resume();
             }
         });
@@ -139,11 +203,12 @@ public class GameActivity extends AppCompatActivity {
 
     private void gameOver() {
         gameView.pause();
+        aManager.unregisterListener(aListener);
         dialog.setContentView(R.layout.game_over);
+        dialog.setCancelable(false);
         CustomTextView score = (CustomTextView) dialog.findViewById(R.id.your_score);
         CustomTextView highScore = (CustomTextView) dialog.findViewById(R.id.high_score);
         score.setText(String.valueOf(gameView.getPlayer().getScore()));
-        dialog.setCancelable(false);
         if(!BasicUtils.scores.isEmpty() && gameView.getPlayer().getScore() < BasicUtils.scores.get(0).score) {
             highScore.setText("HIGH SCORE: ".concat(String.valueOf(BasicUtils.scores.get(0).score)));
         }
@@ -190,7 +255,7 @@ public class GameActivity extends AppCompatActivity {
         public boolean onFling(MotionEvent e1, MotionEvent e2, float velocityX,
                                float velocityY) {
 
-            if(gameView.getPlayer().getState() == 0) {
+            if(swipe && gameView.getPlayer().getState() == 0) {
                 try {
                     if (Math.abs(e1.getX() - e2.getX()) > 250) {
                         return false;
@@ -217,6 +282,12 @@ public class GameActivity extends AppCompatActivity {
         }
 
         @Override
+        public boolean onSingleTapUp(MotionEvent e) {
+            gameView.createBullet();
+            return super.onSingleTapUp(e);
+        }
+
+        @Override
         public boolean onDown(MotionEvent event) {
             return true;
         }
@@ -236,7 +307,12 @@ public class GameActivity extends AppCompatActivity {
     }
 
     @Override
-    protected void onResume() {
+    protected void onResume(){
+        try {
+            aManager.registerListener(aListener, accelerometer, SensorManager.SENSOR_DELAY_GAME);
+        }catch (Exception e) {
+            Log.e("GameActivity", "Listener already registered");
+        }
         if(gameView.getPlayer().getLives() == 0) {
             dialog.dismiss();
             gameOver();
@@ -248,6 +324,11 @@ public class GameActivity extends AppCompatActivity {
     public void onBackPressed() {
         gameView.pause();
         gamePaused();
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
     }
 
     public void reload() {
